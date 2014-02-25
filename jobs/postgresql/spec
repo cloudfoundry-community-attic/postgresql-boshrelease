@@ -6,6 +6,7 @@ templates:
   bin/monit_debugger: bin/monit_debugger
   bin/postgresql_ctl: bin/postgresql_ctl
   config/postgresql.conf.erb: config/postgresql.conf
+  config/pg_hba.conf.erb: config/pg_hba.conf
   data/properties.sh.erb: data/properties.sh
   helpers/ctl_setup.sh: helpers/ctl_setup.sh
   helpers/ctl_utils.sh: helpers/ctl_utils.sh
@@ -15,3 +16,8 @@ properties:
   postgresql.port:
     description: Port to bind
     default: 5432
+  postgresql.roles:
+    description: Access role names [list]
+  postgresql.max_connections:
+    description: Maximum number of connections
+    default: 500
