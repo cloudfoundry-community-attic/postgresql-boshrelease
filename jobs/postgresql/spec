@@ -1,6 +1,7 @@
 ---
 name: postgresql
-packages: []
+packages:
+- postgresql93
 templates:
   bin/monit_debugger: bin/monit_debugger
   bin/postgresql_ctl: bin/postgresql_ctl
@@ -11,3 +12,6 @@ templates:
 properties:
   postgresql.leader_address:
     description: Hostname/IP to the leader/master of the cluster
+  postgresql.port:
+    description: Port to bind
+    default: 5432

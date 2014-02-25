@@ -12,11 +12,11 @@ jobs:
   - name: postgresql_leader_z1
     instances: 1
     networks:
-      - name: (( meta.network_name ))
+      - name: postgresql1
   - name: postgresql_z1
-    instances: 2
+    instances: 0
     networks:
-      - name: (( meta.network_name ))
+      - name: postgresql1
     properties:
       postgresql:
         leader_address: (( "0.postgresql-leader-z1.postgresql1." meta.environment "." meta.dns_root ))
@@ -34,7 +34,7 @@ networks:
   - name: floating
     type: vip
     cloud_properties: {}
-  - name: (( meta.network_name ))
+  - name: postgresql1
     type: dynamic
     cloud_properties:
       security_groups: (( meta.security_groups ))

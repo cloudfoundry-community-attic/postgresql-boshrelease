@@ -10,4 +10,4 @@ CPUS=$(grep -c ^processor /proc/cpuinfo)
 tar xfv postgresql93/postgresql-9.3.3.tar.gz
 cd postgresql-9.3.3
 ./configure --prefix=${BOSH_INSTALL_TARGET}
-gmake -j${CPUS} && gmake install
+make -j${CPUS} && make install

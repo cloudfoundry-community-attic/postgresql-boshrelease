@@ -1,0 +1,56 @@
+meta:
+  environment: (( merge ))
+  security_groups: (( merge ))
+  subnet_id: (( merge ))
+  cidr_prefix: 10.10.2
+
+  stemcell:
+    name: bosh-aws-xen-ubuntu
+    version: latest
+
+jobs:
+  - name: postgresql_leader_z1
+    instances: 1
+    networks:
+      - name: postgresql1
+        static_ips: (( static_ips(0) ))
+        default: [dns, gateway]
+      - name: floating
+        static_ips: ~
+  - name: postgresql_z1
+    instances: 0
+    networks:
+      - name: postgresql1
+        static_ips: ~
+    properties:
+      postgresql:
+        leader_address: (( jobs.postgresql_leader_z1.networks.postgresql1.static_ips.[0] ))
+
+compilation:
+  cloud_properties:
+    instance_type: m1.medium
+
+resource_pools:
+  - name: small_z1
+    cloud_properties:
+      instance_type: m1.small
+
+networks:
+  - name: floating
+    type: vip
+    cloud_properties: {}
+  - name: postgresql1
+    type: manual
+    subnets:
+      - range: 10.10.2.0/24
+        name: default_unused
+        reserved:
+          - 10.10.2.2 - 10.10.2.9
+        static:
+          - 10.10.2.10 - 10.10.2.100
+        gateway: 10.10.2.1
+        dns:
+          - 10.10.0.2 # amazon has only 1 DNS server for the whole VPC at x.x.0.2
+        cloud_properties:
+          security_groups: (( meta.security_groups ))
+          subnet: (( meta.subnet_id ))
