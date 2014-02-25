@@ -6,18 +6,73 @@ set -u # report the usage of uninitialized variables
 # Setup env vars and folders for the webapp_ctl script
 source /var/vcap/jobs/postgresql/helpers/ctl_setup.sh 'postgresql'
 
-export PORT=${PORT:-5000}
 export LANG=en_US.UTF-8
+
+export PACKAGE_DIR=/var/vcap/packages/postgresql93
 
 case $1 in
 
   start)
     pid_guard $PIDFILE $JOB_NAME
 
-    # TODO: Run some process
-    exec chpst -u vcap:vcap TODO \
+    sysctl -w "kernel.shmmax=284934144"
+
+    if [ ! -d $STORE_DIR -o ! -f $STORE_DIR/postgresql.conf ]; then
+      rm -rf $STORE_DIR
+      mkdir -p $STORE_DIR
+      chown vcap:vcap $STORE_DIR
+      chmod 0700 $STORE_DIR
+
+      # initdb creates data directories
+      su - vcap -c "$PACKAGE_DIR/bin/initdb -E utf8 --locale en_US.UTF-8 -D $STORE_DIR"
+
+      mkdir -p $STORE_DIR/pg_log
+      chown vcap:vcap $STORE_DIR/pg_log
+    fi
+
+    cp $JOB_DIR/config/{postgresql,pg_hba}.conf $STORE_DIR
+    chown vcap:vcap $STORE_DIR/{postgresql,pg_hba}.conf
+
+    echo "Starting PostgreSQL: "
+    su - vcap -c "$PACKAGE_DIR/bin/pg_ctl -o \"-h $LISTEN_ADDRESS -p $PORT\" \
+                  -w start -D $STORE_DIR -l \"$STORE_DIR/pg_log/startup.log\"" \
          >>$LOG_DIR/$JOB_NAME.stdout.log \
          2>>$LOG_DIR/$JOB_NAME.stderr.log
+
+    echo "PostgreSQL started successfully"
+
+    echo "Creating roles..."
+    <% if_p("postgresql.roles") do |roles| %>
+      <% roles.each do |role| %>
+      echo "Trying to create role <%= role['name'] %>..."
+      set +e
+      # TODO remove unused roles automatically
+      # Default permissions are: nosuperuser nologin inherit nocreatedb.
+      # Will fail if role already exists, which is OK
+      $PACKAGE_DIR/bin/psql -U vcap -p $PORT -d postgres \
+                            -c "CREATE ROLE \"<%= role['name'] %>\"" \
+         >>$LOG_DIR/$JOB_NAME.setup.out.log \
+         2>>$LOG_DIR/$JOB_NAME.setup.err.log
+      set -e
+
+      echo "Setting password for role <%= role['name'] %>..."
+      $PACKAGE_DIR/bin/psql -U vcap -p $PORT -d postgres \
+                            -c "ALTER ROLE \"<%= role['name'] %>\" \
+                                WITH LOGIN PASSWORD '<%= role['password'] %>'"
+      <% end %>
+    <% end %>
+
+    echo "Creating databases..."
+    <% if_p("postgresql.databases") do |databases| %>
+      <% databases.each do |database| %>
+      echo "Trying to create database <%= database['name'] %>..."
+      set +e
+      su - vcap -c "$PACKAGE_DIR/bin/createdb \"<%= database['name'] %>\" -p $PORT"
+      set -e
+
+      <% end %>
+    <% end %>
+
 
     # store pid in $PIDFILE
     echo $! > $PIDFILE

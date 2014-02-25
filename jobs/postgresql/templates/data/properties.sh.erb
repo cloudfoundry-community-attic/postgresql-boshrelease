@@ -8,3 +8,6 @@ export NAME='<%= name %>'
 export JOB_INDEX=<%= index %>
 # full job name, like redis/0 or webapp/3
 export JOB_FULL="$NAME/$JOB_INDEX"
+
+export PORT=<%= p("postgresql.port") %>
+export LISTEN_ADDRESS=0.0.0.0

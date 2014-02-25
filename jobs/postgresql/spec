@@ -17,7 +17,9 @@ properties:
     description: Port to bind
     default: 5432
   postgresql.roles:
-    description: Access role names [list]
+    description: List of access roles [hashes with {name,password} keys]
+  postgresql.databases:
+    description: List of databases [hashes with {name} key]
   postgresql.max_connections:
     description: Maximum number of connections
     default: 500

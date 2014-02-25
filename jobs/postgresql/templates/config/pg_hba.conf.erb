@@ -4,6 +4,6 @@ host    all             all             ::1/128                 trust
 host    all             all             0.0.0.0/0               md5
 <% if_p("postgresql.roles") do |roles| %>
   <% roles.each do |role| %>
-host    all  <%= role.name %> 0.0.0.0/0 md5
+host    all  <%= role["name"] %> 0.0.0.0/0 md5
   <% end %>
 <% end %>
