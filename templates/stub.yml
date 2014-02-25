@@ -1,0 +1,13 @@
+---
+meta:
+  environment: NAME
+  dns_root: microbosh
+  network_name: postgresql1
+  security_groups:
+    - postgresql
+
+director_uuid: PLACEHOLDER-DIRECTOR-UUID
+
+releases:
+  - name: postgresql
+    version: latest
