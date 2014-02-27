@@ -5,7 +5,7 @@ meta:
   - postgresql-vpc-9815e3fd
 
 jobs:
-  - name: postgresql_z1
+  - name: postgresql_leader_z1
     networks:
       - name: floating
         static_ips:
