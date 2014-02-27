@@ -1,0 +1,12 @@
+meta:
+  subnet_id: subnet-fc1f34ba
+  port: 5432
+  security_groups:
+  - postgresql-vpc-9815e3fd
+
+jobs:
+  - name: postgresql_z1
+    networks:
+      - name: floating
+        static_ips:
+        - 54.84.92.139
