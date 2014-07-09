@@ -2,4 +2,4 @@
 name: postgresql93
 dependencies: []
 files:
-- postgresql93/postgresql-9.3.3.tar.gz
+- postgresql93/postgresql-9.3.4.tar.gz
