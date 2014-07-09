@@ -6,7 +6,7 @@ To use this bosh release, first upload it to your bosh:
 
 ```
 bosh target BOSH_HOST
-git clone git@github.com:cloudfoundry-community/postgresql-boshrelease.git
+git clone git@github.com:starkandwayne/postgresql-boshrelease.git
 cd postgresql-boshrelease
 bosh upload release releases/postgresql-1.yml
 ```
